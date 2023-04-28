@@ -1,0 +1,280 @@
+#!/bin/bash
+
+set +e
+
+bold=$(tput bold)
+underline=$(tput sgr 0 1)
+reset=$(tput sgr0)
+
+red=$(tput setaf 1)
+green=$(tput setaf 76)
+white=$(tput setaf 7)
+tan=$(tput setaf 202)
+blue=$(tput setaf 202)
+
+docker_compose_file='../docker-compose.yml'
+
+OS=`uname`
+
+underline() { printf "${bold}%s${reset}\n" "$@"
+}
+h1() { printf "\n${bold}${blue}%s${reset}\n" "$@"
+}
+h2() { printf "\n${bold}${white}%s${reset}\n" "$@"
+}
+debug() { printf "${white}%s${reset}\n" "$@"
+}
+info() { printf "${white}➜ %s${reset}\n" "$@"
+}
+success() { printf "${green}✔ %s${reset}\n" "$@"
+}
+error() { printf "${red}✖ %s${reset}\n" "$@"
+}
+warn() { printf "${tan}➜ %s${reset}\n" "$@"
+}
+bold() { printf "${bold}%s${reset}\n" "$@"
+}
+note() { printf "\n${bold}${white}Note:${reset} ${white}%s${reset}\n" "$@"
+}
+
+usage="bin/$(basename "$0") [help] [up down run rm build push] -- run the rails application in docker with Postgres and Redis
+
+where:
+    help          show this help text
+    up            start the application
+    down          stop the application
+    run [<args>]  run command in container, e.g. rails c
+    restart       restart backend
+    rm            remove containers
+    build         build image with dockerfile
+    push          push current image to registry
+    pull          pull latest image from registry befor start up
+    attach        attach terminal's standard input, output, and error to backend container
+    psql          run Postgres DB command line
+    "
+
+item=1
+
+# Start the app
+up=$false
+# Stop the app
+down=$false
+#run command in containers
+run=$false
+# restart the app
+restart=$false
+# remove the app
+rm=$false
+# build app image with Dockerfile
+update=$false
+# push image to hub
+push=$false
+#pull images
+pull=$false
+#attach terminal
+attach=$false
+#psql images
+psql=$false
+
+if [ $# == 0 ]; then
+  note "$usage"; exit 1;
+else
+  case $1 in
+      help)
+      note "$usage"
+      exit 0;;
+      up)
+      up=true;;
+      down)
+      down=true;;
+      run)
+      run=true;;
+      restart)
+      restart=true;;      
+      rm)
+      rm=true;;
+      build)
+      build=true;;
+      push)
+      push=true;;
+      pull)
+      pull=true;;
+      attach)
+      attach=true;;
+      psql)
+      psql=true;;
+      *)
+      note "$usage"
+      exit 1;;
+  esac
+  shift || true
+fi
+
+function check_docker {
+        if ! docker --version &> /dev/null
+        then
+                error "Need to install docker(1.10.0+) first and run this script again."
+                exit 1
+        fi
+
+        # docker has been installed and check its version
+        if [[ $(docker --version) =~ (([0-9]+).([0-9]+).([0-9]+)) ]]
+        then
+                docker_version=${BASH_REMATCH[1]}
+                docker_version_part1=${BASH_REMATCH[2]}
+                docker_version_part2=${BASH_REMATCH[3]}
+
+                # the version of docker does not meet the requirement
+                if [ "$docker_version_part1" -lt 1 ] || ([ "$docker_version_part1" -eq 1 ] && [ "$docker_version_part2" -lt 10 ])
+                then
+                        error "Need to upgrade docker package to 1.10.0+."
+                        exit 1
+                #else
+                #        note "docker version: $docker_version"
+                fi
+        else
+                error "Failed to parse docker version."
+                exit 1
+        fi
+}
+
+function check_dockercompose {
+        if ! docker-compose --version &> /dev/null
+        then
+                error "Need to install docker-compose(1.13.0+) by yourself first and run this script again."
+                exit 1
+        fi
+
+        # docker-compose has been installed, check its version
+        if [[ $(docker-compose --version) =~ (([0-9]+).([0-9]+).([0-9]+)) ]]
+        then
+                docker_compose_version=${BASH_REMATCH[1]}
+                docker_compose_version_part1=${BASH_REMATCH[2]}
+                docker_compose_version_part2=${BASH_REMATCH[3]}
+
+                # the version of docker-compose does not meet the requirement
+                if [ "$docker_compose_version_part1" -lt 1 ] || ([ "$docker_compose_version_part1" -eq 1 ] && [ "$docker_compose_version_part2" -lt 12 ])
+                then
+                        error "Need to upgrade docker-compose package to 1.13.0+."
+                        exit 1
+                #else
+                        #note "docker-compose version: $docker_compose_version"
+                fi
+        else
+
+                error "Failed to parse docker-compose version."
+                exit 1
+        fi
+}
+
+function timestamp() {
+  date +"%Y%m%d%H%M%S"
+}
+
+function replace_tag() {
+    if [ "$OS" = 'Darwin' ]; then
+        perl -i -pe"s/BACKEND_IMAGE_TAG=[a-zA-Z0-9]+/BACKEND_IMAGE_TAG=$1/g" .env
+    else
+	      sed -i "s/BACKEND_IMAGE_TAG=[a-zA-Z0-9]\+/BACKEND_IMAGE_TAG=$1/g" .env
+    fi
+}
+
+#Change Work Dir
+workdir="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+cd $workdir
+cd "../"
+
+#h2 "[Step $item]: checking requried software"; let item+=1
+check_docker
+check_dockercompose
+#success "Passed"
+
+#h2 "[Step $item]: preparing environment";  let item+=1
+if [ ! -f .env ]; then
+    error ".env file not found! Please 'cp .env.example .env' and setup initial enviroments"
+    exit 1
+fi
+#success "Passed"
+
+#READ env parameters
+source .env
+
+if [ -z "$PROJECT_HUB" ] || [ -z "$PROJECT_NAME" ] || [ -z "$BACKEND_IMAGE_TAG" ];
+then error "Please set PROJECT_HUB, PROJECT_NAME and BACKEND_IMAGE_TAG in .env file for docker images"; exit 1; fi
+
+if [ $build ]; then
+  h2 "[Step $item]: updating backend image";  let item+=1
+  BACKEND_IMAGE_TAG="$(timestamp)"
+  replace_tag $BACKEND_IMAGE_TAG
+  docker-compose -f $docker_compose_file build backend
+  echo "BACKEND_IMAGE_TAG=$BACKEND_IMAGE_TAG" > .backend_image_tag
+fi
+
+if [ $up ]; then
+  source .backend_image_tag
+  replace_tag $BACKEND_IMAGE_TAG
+  h2  "Staring the app"
+  docker-compose -f $docker_compose_file up -d
+  info "Waiting until puma is started. May take several minutes."
+  until $(curl --output /dev/null --silent --head --fail http://127.0.0.1:3000); do
+    printf '.'
+    sleep 10
+  done
+  success "Puma started";
+fi
+
+if [ $push ]; then
+  source .backend_image_tag
+  if [ ! -f ~/.docker/config.json ] ||  ! grep -q ${PROJECT_HUB} ~/.docker/config.json ; then
+    note "Login to ${PROJECT_HUB}:"
+    docker login ${PROJECT_HUB}
+  fi
+  docker tag ${PROJECT_HUB}/${PROJECT_NAME}/backend:${BACKEND_IMAGE_TAG} ${PROJECT_HUB}/${PROJECT_NAME}/backend:latest
+  note "Pushing ${BACKEND_IMAGE_TAG} backend image"
+  docker push ${PROJECT_HUB}/${PROJECT_NAME}/backend:${BACKEND_IMAGE_TAG}
+  note "Make latest backend image"
+  docker push ${PROJECT_HUB}/${PROJECT_NAME}/backend:latest
+fi
+
+if [ $pull ]; then
+  source .backend_image_tag
+  if [ ! -f ~/.docker/config.json ] ||  ! grep -q ${PROJECT_HUB} ~/.docker/config.json ; then
+    note "Login to ${PROJECT_HUB}:"
+    docker login ${PROJECT_HUB}
+  fi
+  docker-compose -f $docker_compose_file pull
+fi
+
+if [ $down ]; then
+  docker-compose -f $docker_compose_file stop
+fi
+
+if [ $restart ]; then
+  docker-compose -f $docker_compose_file restart backend
+fi
+
+if [ $rm ]; then
+  docker-compose -f $docker_compose_file stop
+  docker-compose -f $docker_compose_file rm
+fi
+
+if [ $run ]; then
+  if [ $# == 0 ]; then error "Please input command to run like 'rails c' or 'bundle install'"; exit 1; fi
+  if [ -z `docker ps -q --no-trunc | grep $(docker-compose -f $docker_compose_file ps -q backend)` ]; then
+    error "${PROJECT_NAME}_backend is not running. Please run 'bin/docker up' first"; exit 1;
+  else
+    docker-compose -f $docker_compose_file exec backend $*
+  fi
+fi
+
+if [ $attach ]; then
+  docker attach $(docker-compose -f $docker_compose_file ps -q backend)
+fi
+
+if [ $psql ]; then
+  if [ -z `docker ps -q --no-trunc | grep $(docker-compose -f $docker_compose_file ps -q backend)` ]; then
+    error "${PROJECT_NAME}_backend is not running. Please run 'bin/docker up' first"; exit 1;
+  else
+    docker-compose -f $docker_compose_file exec backend bash -c "psql -h $POSTGRES_HOST -U $POSTGRES_USERNAME $POSTGRES_DB"
+  fi
+fi

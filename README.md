@@ -1,24 +1,51 @@
-# README
+# Backorator
 
-This README would normally document whatever steps are necessary to get the
-application up and running.
+Template back-end project to provide API for front-end applications on React and mobile applications
 
-Things you may want to cover:
+## Description
 
-* Ruby version
+This project gives examples of the most common functionality typically required by
+single-page web applications and mobile applications. The mentioned functionality
+includes but not limited to:
 
-* System dependencies
+- Sign Up
+- Login Through Login and Password
+- Login Through Facebook (with account sync)
+- Forgot Password
+- Logout
+- Profile view/edit
 
-* Configuration
+To see the other information about general architecture, common approaches and flows please visit
+https://wiki.yandex.ru/homepage/dev-knowledge-base/web-dev/backend/ror/
 
-* Database creation
+## Generating documentation
 
-* Database initialization
+```shell
+$ RAILS_ENV=test SWAGGER_DRY_RUN=0 rake rswag
+```
 
-* How to run the test suite
+## Running environment in Docker
 
-* Services (job queues, cache servers, search engines, etc.)
+It is possible to run the latest code in Docker container using Docker Compose. Here are the steps:
 
-* Deployment instructions
+1. Copy `.env` into `.env.local` and set:
+  - `RAILS_MASTER_KEY` (ask backend team)
+  - `FIREBASE_SERVER_KEY` (ask backend or frontend team)
 
-* ...
+2. Setup gems and database (initially).
+
+    ```shell
+    $ bin/compose-run .dockerdev/entrypoints/setup.sh
+    ```
+
+3. Start the application
+
+    ```shell
+    $ docker-compose up
+    ```
+
+To generate docs:
+
+```shell
+$ bin/compose-docs
+```

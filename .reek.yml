@@ -1,0 +1,34 @@
+---
+
+detectors:
+  IrresponsibleModule:
+    enabled: false
+
+  ControlParameter:
+    enabled: false
+
+  UtilityFunction:
+    enabled: false
+
+  UncommunicativeVariableName:
+    accept:
+      - e
+
+directories:
+  "db/migrate":
+    FeatureEnvy:
+      enabled: false
+    TooManyStatements:
+      enabled: false
+    UncommunicativeVariableName:
+      enabled: false
+    DuplicateMethodCall:
+      enabled: false
+    NestedIterators:
+      enabled: false
+
+  "config/initializers/auto_inject":
+    TooManyStatements:
+      enabled: false
+    DuplicateMethodCall:
+      enabled: false

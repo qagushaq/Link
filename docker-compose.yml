@@ -1,0 +1,73 @@
+version: '3'
+
+services:
+  backend: &backend
+    image: template-dev:1.0.0
+    container_name: template-backend
+    build:
+      context: .dockerdev
+      dockerfile: Dockerfile
+      args:
+        RUBY_VERSION: '3.0.2'
+        PG_MAJOR: '13'
+        BUNDLER_VERSION: '2.2.29'
+    volumes:
+      - .:/app
+      - rails_cache:/app/tmp/cache
+      - bundle:/usr/local/bundle
+    environment:
+      NODE_ENV: ${NODE_ENV:-development}
+      SIDEKIQ_REDIS_URL: redis://redis:6379/0
+      REDIS_URL: redis://redis:6379/1
+      DATABASE_CLEANER_ALLOW_REMOTE_DATABASE_URL: 'true'
+      BOOTSNAP_CACHE_DIR: /usr/local/bundle/_bootsnap
+      WEB_CONCURRENCY: 1
+      HISTFILE: /app/log/.bash_history
+      PSQL_HISTFILE: /app/log/.psql_history
+      EDITOR: vi
+
+      DB_HOST: db
+      DB_USER: postgres
+      DB_PASS: pwd
+    tmpfs:
+      - /tmp
+    depends_on:
+      - db
+      - redis
+    command: .dockerdev/entrypoints/backend.sh
+    ports:
+      - 3000:3000
+
+  sidekiq:
+    <<: *backend
+    container_name: template-sidekiq
+    command: .dockerdev/entrypoints/sidekiq.sh
+    ports:
+      - 3001:3000
+
+  db:
+    image: postgres:13-alpine
+    container_name: template-db
+    restart: on-failure
+    environment:
+      POSTGRES_PASSWORD: pwd
+    volumes:
+      - postgres:/var/lib/postgresql/data
+      - ./log:/root/log:cached
+    ports:
+      - 5432
+
+  redis:
+    image: redis:alpine
+    container_name: template-redis
+    restart: on-failure
+    volumes:
+      - redis:/data
+    ports:
+      - 6379
+
+volumes:
+  bundle:
+  postgres:
+  redis:
+  rails_cache:
