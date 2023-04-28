@@ -14,12 +14,6 @@ Rails.application.routes.draw do
       mount Rswag::Api::Engine => '/docs' # /api/docs/v1/swagger.yml
       mount Rswag::Ui::Engine => '/docs'  # /api/docs
     end
-
-    resources :confirm_email, only: %i[create update]
-
-    resource :session, only: %i[create destroy]
-
-    resources :users, only: %i[create]
-    resource :user, only: %i[show update]
+    
   end
 end
