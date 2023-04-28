@@ -1,0 +1,6 @@
+en:
+  dry_validation:
+    errors:
+      rules:
+        timezone:
+          included_in?: must be a valid time zone
