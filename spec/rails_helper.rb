@@ -29,9 +29,17 @@ rescue ActiveRecord::PendingMigrationError => e
 end
 
 RSpec.configure do |config|
+  config.include HeadersHelper
+  config.include ApiRequestsHelper, api_request: true
 
   config.use_transactional_fixtures = true
   config.infer_spec_type_from_file_location!
+
+  # Automatically set `api_request` meta tag for all request api specs.
+  # That's a great way to include RequestsHelper into these specs specifically.
+  config.define_derived_metadata(file_path: Regexp.new('/spec/requests/api')) do |metadata|
+    metadata[:api_request] = true
+  end
 
   # Filter lines from Rails gems in backtraces.
   config.filter_rails_from_backtrace!
