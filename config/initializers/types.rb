@@ -9,7 +9,4 @@ module Types
 
   # Email address with format validation
   Email = StrippedString.constrained(format: URI::MailTo::EMAIL_REGEXP)
-
-  # Timezone type
-  Timezone = StrippedString.constrained(included_in: TZInfo::Timezone.all_identifiers)
 end
