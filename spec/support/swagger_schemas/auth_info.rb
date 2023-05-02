@@ -16,6 +16,3 @@ module SwaggerSchemas
     }
   }.freeze
 end
-
-
-

@@ -15,8 +15,4 @@ RSpec.describe UserPolicy do
   describe_rule :show? do
     include_examples 'requires login'
   end
-
-  describe_rule :update? do
-    include_examples 'requires login'
-  end
 end

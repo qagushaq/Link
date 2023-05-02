@@ -59,7 +59,7 @@ CREATE TABLE public.sessions (
 
 CREATE TABLE public.users (
     id uuid DEFAULT gen_random_uuid() NOT NULL,
-    password_digest character varying,
+    password_digest character varying NOT NULL,
     email character varying NOT NULL,
     email_confirmed_at timestamp without time zone,
     email_confirmation_token text,
@@ -105,6 +105,13 @@ ALTER TABLE ONLY public.users
 --
 
 CREATE INDEX index_sessions_on_user_id ON public.sessions USING btree (user_id);
+
+
+--
+-- Name: index_users_on_email_confirmation_token; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE UNIQUE INDEX index_users_on_email_confirmation_token ON public.users USING btree (email_confirmation_token);
 
 
 --

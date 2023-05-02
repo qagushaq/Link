@@ -1,0 +1,230 @@
+---
+openapi: 3.0.1
+info:
+  title: API V1
+  version: v1
+paths:
+  "/api/session":
+    post:
+      summary: Sign in
+      tags:
+      - Authentication
+      operationId: signIn
+      parameters: []
+      responses:
+        '201':
+          description: User authenticated
+          content:
+            application/json:
+              example:
+                data:
+                  id: 1ec46fc2-5fef-4178-8f2a-add073ceec0f
+                  type: session
+                  attributes:
+                    token: 1ec46fc2-5fef-4178-8f2a-add073ceec0f
+                  relationships:
+                    user:
+                      data:
+                        id: 8b1f90f4-802f-4ac6-bd7c-8894693561e4
+                        type: user
+                included:
+                - id: 8b1f90f4-802f-4ac6-bd7c-8894693561e4
+                  type: user
+                  attributes:
+                    email: user-1@example.com
+                    emailConfirmed: false
+              schema:
+                type: object
+                properties:
+                  data:
+                    "$ref": "#/components/schemas/session"
+                  included:
+                    type: array
+                    items:
+                      "$ref": "#/components/schemas/user"
+        '404':
+          description: Invalid credentials
+          content:
+            application/json:
+              example:
+                errors:
+                - title: Either account is missing or password is invalid.
+                  status: 404
+                  code: NOT_FOUND
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                session:
+                  type: object
+                  properties:
+                    email:
+                      type: string
+                      format: email
+                    password:
+                      type: string
+                  required:
+                  - email
+                  - password
+                required:
+                - session
+    delete:
+      summary: Sign out
+      tags:
+      - Authentication
+      operationId: signOut
+      security:
+      - bearer: []
+      responses:
+        '204':
+          description: User signed out
+  "/api/user":
+    get:
+      summary: Show
+      tags:
+      - User
+      operationId: showUser
+      security:
+      - bearer: []
+      responses:
+        '200':
+          description: Shown
+          content:
+            application/json:
+              example:
+                data:
+                  id: 6d6abe21-ee9c-4993-818d-487b65ef2768
+                  type: user
+                  attributes:
+                    email: user-3@example.com
+                    emailConfirmed: true
+              schema:
+                type: object
+                properties:
+                  data:
+                    "$ref": "#/components/schemas/user"
+components:
+  securitySchemes:
+    bearer:
+      description: Key necessary to use API calls as authenticated user
+      type: apiKey
+      name: Authorization
+      in: header
+  schemas:
+    auth_info:
+      type: object
+      properties:
+        id:
+          type: string
+        type:
+          type: string
+        attributes:
+          type: object
+          properties:
+            email:
+              type: string
+              format: email
+              nullable: true
+    presigned_url:
+      type: object
+      properties:
+        method:
+          type: string
+        url:
+          type: string
+        fields:
+          type: object
+          properties:
+            key:
+              type: string
+            policy:
+              type: string
+            x-amz-credential:
+              type: string
+            x-amz-algorithm:
+              type: string
+            x-amz-date:
+              type: string
+            x-amz-signature:
+              type: string
+            success_action_status:
+              type: string
+            Content-Type:
+              type: string
+            Content-Disposition:
+              type: string
+          required:
+          - key
+          - policy
+          - x-amz-credential
+          - x-amz-algorithm
+          - x-amz-date
+          - x-amz-signature
+        headers:
+          type: object
+      required:
+      - method
+      - url
+      - fields
+    relationship_one:
+      type: object
+      properties:
+        data:
+          "$ref": "#/components/schemas/resource_identifier_object"
+    resource_identifier_object:
+      type: object
+      properties:
+        id:
+          type: string
+        type:
+          type: string
+      required:
+      - id
+      - type
+    session:
+      type: object
+      properties:
+        id:
+          type: string
+        type:
+          type: string
+        attributes:
+          type: object
+          properties:
+            token:
+              type: string
+          required:
+          - token
+        relationships:
+          type: object
+          properties:
+            user:
+              "$ref": "#/components/schemas/relationship_one"
+      required:
+      - id
+      - type
+      - attributes
+    user:
+      type: object
+      properties:
+        id:
+          type: string
+        type:
+          type: string
+        attributes:
+          type: object
+          properties:
+            email:
+              type: string
+              format: email
+            emailConfirmed:
+              type: boolean
+          required:
+          - email
+          - emailConfirmed
+      required:
+      - id
+      - type
+      - attributes
