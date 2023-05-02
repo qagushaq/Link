@@ -35,7 +35,6 @@ RSpec.configure do |config|
 
         schemas: {
           auth_info: SwaggerSchemas::AUTH_INFO,
-          presigned_url: SwaggerSchemas::PRESIGNED_URL,
           relationship_one: SwaggerSchemas::RELATIONSHIP_ONE,
           resource_identifier_object: SwaggerSchemas::RESOURCE_IDENTIFIER_OBJECT,
           session: SwaggerSchemas::SESSION,

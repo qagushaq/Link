@@ -19,7 +19,6 @@ module AutoInjectActions
 
         namespace :users do
           register(:create) { Users::CreateAction.new }
-          register(:update) { Users::UpdateAction.new }
         end
       end
     end

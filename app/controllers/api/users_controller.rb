@@ -17,11 +17,4 @@ class API::UsersController < API::ApplicationController
 
     respond_with user, serializer: UserSerializer
   end
-
-  # The profile of currently logged in user
-  def show
-    authorize! User, to: :show?
-
-    respond_with current_user, serializer: UserSerializer
-  end
 end

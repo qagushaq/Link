@@ -16,6 +16,6 @@ Rails.application.routes.draw do
     resource :session, only: %i[create destroy]
 
     resources :users, only: %i[create]
-    resource :user, only: %i[show]
+    get 'user', to: 'user#show'
   end
 end

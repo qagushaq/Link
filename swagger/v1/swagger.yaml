@@ -4,6 +4,30 @@ info:
   title: API V1
   version: v1
 paths:
+  "/api/confirm_email":
+    post:
+      summary: Confirm email
+      tags:
+      - Confirm email
+      operationId: confirmEmail
+      parameters: []
+      responses:
+        '204':
+          description: No Content
+        '404':
+          description: Token not found
+        '422':
+          description: Invalid token
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                token:
+                  type: string
+              required:
+              - token
   "/api/session":
     post:
       summary: Sign in
@@ -18,20 +42,20 @@ paths:
             application/json:
               example:
                 data:
-                  id: 1ec46fc2-5fef-4178-8f2a-add073ceec0f
+                  id: 182c2449-e99f-4e06-b1a7-cb9203614a1e
                   type: session
                   attributes:
-                    token: 1ec46fc2-5fef-4178-8f2a-add073ceec0f
+                    token: 182c2449-e99f-4e06-b1a7-cb9203614a1e
                   relationships:
                     user:
                       data:
-                        id: 8b1f90f4-802f-4ac6-bd7c-8894693561e4
+                        id: a7cde190-1f5a-4951-aba1-ec11ae2a8ba2
                         type: user
                 included:
-                - id: 8b1f90f4-802f-4ac6-bd7c-8894693561e4
+                - id: a7cde190-1f5a-4951-aba1-ec11ae2a8ba2
                   type: user
                   attributes:
-                    email: user-1@example.com
+                    email: user-2@example.com
                     emailConfirmed: false
               schema:
                 type: object
@@ -95,16 +119,59 @@ paths:
             application/json:
               example:
                 data:
-                  id: 6d6abe21-ee9c-4993-818d-487b65ef2768
+                  id: cac2ac59-e9b8-464d-a1b8-a490365f94b8
                   type: user
                   attributes:
-                    email: user-3@example.com
+                    email: user-4@example.com
                     emailConfirmed: true
               schema:
                 type: object
                 properties:
                   data:
                     "$ref": "#/components/schemas/user"
+  "/api/users":
+    post:
+      summary: Sign up
+      tags:
+      - Users
+      operationId: signUp
+      parameters: []
+      responses:
+        '201':
+          description: User signed up
+          content:
+            application/json:
+              example:
+                data:
+                  id: 94f6666c-bd62-4d5b-a26a-30ecf8db736a
+                  type: user
+                  attributes:
+                    email: new@user.com
+                    emailConfirmed: false
+              schema:
+                type: object
+                properties:
+                  data:
+                    "$ref": "#/components/schemas/user"
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                user:
+                  type: object
+                  properties:
+                    email:
+                      type: string
+                      format: email
+                    password:
+                      type: string
+                  required:
+                  - email
+                  - password
+              required:
+              - user
 components:
   securitySchemes:
     bearer:
@@ -127,47 +194,6 @@ components:
               type: string
               format: email
               nullable: true
-    presigned_url:
-      type: object
-      properties:
-        method:
-          type: string
-        url:
-          type: string
-        fields:
-          type: object
-          properties:
-            key:
-              type: string
-            policy:
-              type: string
-            x-amz-credential:
-              type: string
-            x-amz-algorithm:
-              type: string
-            x-amz-date:
-              type: string
-            x-amz-signature:
-              type: string
-            success_action_status:
-              type: string
-            Content-Type:
-              type: string
-            Content-Disposition:
-              type: string
-          required:
-          - key
-          - policy
-          - x-amz-credential
-          - x-amz-algorithm
-          - x-amz-date
-          - x-amz-signature
-        headers:
-          type: object
-      required:
-      - method
-      - url
-      - fields
     relationship_one:
       type: object
       properties:
