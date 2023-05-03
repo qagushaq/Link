@@ -3,17 +3,10 @@
 class Users::CreateEmailConfirmationToken
   def call(user)
     user.update!(
-      email_confirmation_token: free_confirmation_token,
+      email_confirmation_token: SecureRandom.uuid,
       email_confirmed_at: nil
     )
-  end
-
-  private
-
-  def free_confirmation_token
-    loop do
-      token = SecureRandom.uuid
-      break token unless User.exists?(email_confirmation_token: token)
-    end
+  rescue ActiveRecord::RecordNotUnique
+    retry
   end
 end
