@@ -42,17 +42,17 @@ paths:
             application/json:
               example:
                 data:
-                  id: 182c2449-e99f-4e06-b1a7-cb9203614a1e
+                  id: 3627c574-8227-40ef-9902-4893f7281725
                   type: session
                   attributes:
-                    token: 182c2449-e99f-4e06-b1a7-cb9203614a1e
+                    token: 3627c574-8227-40ef-9902-4893f7281725
                   relationships:
                     user:
                       data:
-                        id: a7cde190-1f5a-4951-aba1-ec11ae2a8ba2
+                        id: 67fdd497-9c6d-43fb-8fe1-7e38261d6186
                         type: user
                 included:
-                - id: a7cde190-1f5a-4951-aba1-ec11ae2a8ba2
+                - id: 67fdd497-9c6d-43fb-8fe1-7e38261d6186
                   type: user
                   attributes:
                     email: user-2@example.com
@@ -104,6 +104,33 @@ paths:
       responses:
         '204':
           description: User signed out
+  "/api/short_links":
+    post:
+      summary: Create short link
+      tags:
+      - Short links / create
+      operationId: createShortLink
+      security:
+      - bearer: []
+      parameters: []
+      responses:
+        '201':
+          description: Short link created
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                shortLink:
+                  type: object
+                  properties:
+                    url:
+                      type: string
+                  required:
+                  - url
+              required:
+              - shortLink
   "/api/user":
     get:
       summary: Show
@@ -119,10 +146,10 @@ paths:
             application/json:
               example:
                 data:
-                  id: cac2ac59-e9b8-464d-a1b8-a490365f94b8
+                  id: f21b5e16-7c5f-417c-99af-0c2a9f036f12
                   type: user
                   attributes:
-                    email: user-4@example.com
+                    email: user-5@example.com
                     emailConfirmed: true
               schema:
                 type: object
@@ -143,7 +170,7 @@ paths:
             application/json:
               example:
                 data:
-                  id: 94f6666c-bd62-4d5b-a26a-30ecf8db736a
+                  id: c3ca1d10-82d8-44a9-9756-dda075c75131
                   type: user
                   attributes:
                     email: new@user.com
