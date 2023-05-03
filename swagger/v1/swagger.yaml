@@ -1,0 +1,256 @@
+---
+openapi: 3.0.1
+info:
+  title: API V1
+  version: v1
+paths:
+  "/api/confirm_email":
+    post:
+      summary: Confirm email
+      tags:
+      - Confirm email
+      operationId: confirmEmail
+      parameters: []
+      responses:
+        '204':
+          description: No Content
+        '404':
+          description: Token not found
+        '422':
+          description: Invalid token
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                token:
+                  type: string
+              required:
+              - token
+  "/api/session":
+    post:
+      summary: Sign in
+      tags:
+      - Authentication
+      operationId: signIn
+      parameters: []
+      responses:
+        '201':
+          description: User authenticated
+          content:
+            application/json:
+              example:
+                data:
+                  id: 182c2449-e99f-4e06-b1a7-cb9203614a1e
+                  type: session
+                  attributes:
+                    token: 182c2449-e99f-4e06-b1a7-cb9203614a1e
+                  relationships:
+                    user:
+                      data:
+                        id: a7cde190-1f5a-4951-aba1-ec11ae2a8ba2
+                        type: user
+                included:
+                - id: a7cde190-1f5a-4951-aba1-ec11ae2a8ba2
+                  type: user
+                  attributes:
+                    email: user-2@example.com
+                    emailConfirmed: false
+              schema:
+                type: object
+                properties:
+                  data:
+                    "$ref": "#/components/schemas/session"
+                  included:
+                    type: array
+                    items:
+                      "$ref": "#/components/schemas/user"
+        '404':
+          description: Invalid credentials
+          content:
+            application/json:
+              example:
+                errors:
+                - title: Either account is missing or password is invalid.
+                  status: 404
+                  code: NOT_FOUND
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                session:
+                  type: object
+                  properties:
+                    email:
+                      type: string
+                      format: email
+                    password:
+                      type: string
+                  required:
+                  - email
+                  - password
+                required:
+                - session
+    delete:
+      summary: Sign out
+      tags:
+      - Authentication
+      operationId: signOut
+      security:
+      - bearer: []
+      responses:
+        '204':
+          description: User signed out
+  "/api/user":
+    get:
+      summary: Show
+      tags:
+      - User
+      operationId: showUser
+      security:
+      - bearer: []
+      responses:
+        '200':
+          description: Shown
+          content:
+            application/json:
+              example:
+                data:
+                  id: cac2ac59-e9b8-464d-a1b8-a490365f94b8
+                  type: user
+                  attributes:
+                    email: user-4@example.com
+                    emailConfirmed: true
+              schema:
+                type: object
+                properties:
+                  data:
+                    "$ref": "#/components/schemas/user"
+  "/api/users":
+    post:
+      summary: Sign up
+      tags:
+      - Users
+      operationId: signUp
+      parameters: []
+      responses:
+        '201':
+          description: User signed up
+          content:
+            application/json:
+              example:
+                data:
+                  id: 94f6666c-bd62-4d5b-a26a-30ecf8db736a
+                  type: user
+                  attributes:
+                    email: new@user.com
+                    emailConfirmed: false
+              schema:
+                type: object
+                properties:
+                  data:
+                    "$ref": "#/components/schemas/user"
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                user:
+                  type: object
+                  properties:
+                    email:
+                      type: string
+                      format: email
+                    password:
+                      type: string
+                  required:
+                  - email
+                  - password
+              required:
+              - user
+components:
+  securitySchemes:
+    bearer:
+      description: Key necessary to use API calls as authenticated user
+      type: apiKey
+      name: Authorization
+      in: header
+  schemas:
+    auth_info:
+      type: object
+      properties:
+        id:
+          type: string
+        type:
+          type: string
+        attributes:
+          type: object
+          properties:
+            email:
+              type: string
+              format: email
+              nullable: true
+    relationship_one:
+      type: object
+      properties:
+        data:
+          "$ref": "#/components/schemas/resource_identifier_object"
+    resource_identifier_object:
+      type: object
+      properties:
+        id:
+          type: string
+        type:
+          type: string
+      required:
+      - id
+      - type
+    session:
+      type: object
+      properties:
+        id:
+          type: string
+        type:
+          type: string
+        attributes:
+          type: object
+          properties:
+            token:
+              type: string
+          required:
+          - token
+        relationships:
+          type: object
+          properties:
+            user:
+              "$ref": "#/components/schemas/relationship_one"
+      required:
+      - id
+      - type
+      - attributes
+    user:
+      type: object
+      properties:
+        id:
+          type: string
+        type:
+          type: string
+        attributes:
+          type: object
+          properties:
+            email:
+              type: string
+              format: email
+            emailConfirmed:
+              type: boolean
+          required:
+          - email
+          - emailConfirmed
+      required:
+      - id
+      - type
+      - attributes

@@ -47,7 +47,7 @@ coverage
 public/uploads
 
 # Swagger documentation
-swagger
+#swagger
 
 # Database setup tag
 .db_created
