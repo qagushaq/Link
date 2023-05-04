@@ -23,7 +23,6 @@ module AutoInjectActions
 
         namespace :short_links do
           register(:create) { ShortLinks::CreateAction.new }
-          register(:show) { ShortLinks::ShowAction.new }
         end
       end
     end

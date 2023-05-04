@@ -42,17 +42,17 @@ paths:
             application/json:
               example:
                 data:
-                  id: 3627c574-8227-40ef-9902-4893f7281725
+                  id: 334e7aaa-fae5-4c77-bdcc-4bf3536e19bd
                   type: session
                   attributes:
-                    token: 3627c574-8227-40ef-9902-4893f7281725
+                    token: 334e7aaa-fae5-4c77-bdcc-4bf3536e19bd
                   relationships:
                     user:
                       data:
-                        id: 67fdd497-9c6d-43fb-8fe1-7e38261d6186
+                        id: c2d1028f-0ff2-4e78-86b8-cb3d3e2664c1
                         type: user
                 included:
-                - id: 67fdd497-9c6d-43fb-8fe1-7e38261d6186
+                - id: c2d1028f-0ff2-4e78-86b8-cb3d3e2664c1
                   type: user
                   attributes:
                     email: user-2@example.com
@@ -131,6 +131,41 @@ paths:
                   - url
               required:
               - shortLink
+  "/api/short_links/{id}":
+    get:
+      summary: Show Short Links
+      tags:
+      - Short lINKS
+      operationId: showShortLinks
+      security:
+      - bearer: []
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Shown
+          content:
+            application/json:
+              example:
+                data:
+                  id: 69d75800-71d7-472c-a5a8-a42fc501875d
+                  type: shortLink
+                  attributes:
+                    url: https://www.google.com
+                    slug: ugXWan
+        '404':
+          description: Not found
+          content:
+            application/json:
+              example:
+                errors:
+                - title: Short Link not found
+                  status: 404
+                  code: NOT_FOUND
   "/api/user":
     get:
       summary: Show
@@ -146,10 +181,10 @@ paths:
             application/json:
               example:
                 data:
-                  id: f21b5e16-7c5f-417c-99af-0c2a9f036f12
+                  id: 9aadb456-b633-4bcc-99c0-e5ce15ccc3c8
                   type: user
                   attributes:
-                    email: user-5@example.com
+                    email: user-7@example.com
                     emailConfirmed: true
               schema:
                 type: object
@@ -170,7 +205,7 @@ paths:
             application/json:
               example:
                 data:
-                  id: c3ca1d10-82d8-44a9-9756-dda075c75131
+                  id: 576d3b53-0204-46d5-b8bf-660005e12c05
                   type: user
                   attributes:
                     email: new@user.com

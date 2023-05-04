@@ -4,10 +4,9 @@ class CreateShortLinks < ActiveRecord::Migration[7.0]
   def change
     create_table :short_links, id: :uuid do |t|
       t.string :url, index: { unique: true }, null: false
-      t.string :slug, limit: 6, null: false
+      t.string :slug, limit: 6, index: { unique: true }, null: false
 
       t.timestamps
     end
-    add_index :short_links, :id
   end
 end

@@ -129,10 +129,10 @@ CREATE INDEX index_sessions_on_user_id ON public.sessions USING btree (user_id);
 
 
 --
--- Name: index_short_links_on_id; Type: INDEX; Schema: public; Owner: -
+-- Name: index_short_links_on_slug; Type: INDEX; Schema: public; Owner: -
 --
 
-CREATE INDEX index_short_links_on_id ON public.short_links USING btree (id);
+CREATE UNIQUE INDEX index_short_links_on_slug ON public.short_links USING btree (slug);
 
 
 --

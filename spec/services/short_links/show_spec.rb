@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 RSpec.describe ShortLinks::Show do
-  subject(:show_short_link) { service.(short_link.url) }
+  subject(:show_short_link) { service.(short_link.slug) }
 
   let(:service) { described_class.new }
   let(:short_link) { create(:short_link) }
