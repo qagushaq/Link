@@ -16,3 +16,4 @@ en:
       token_missing: is missing
     short_links:
       url_missing: is in invalid format
+      invalid_slug: Short Link not found

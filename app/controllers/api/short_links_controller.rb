@@ -4,7 +4,7 @@ class API::ShortLinksController < API::ApplicationController
   include DI[
     validate_input: 'services.validate_input',
     create_action: 'actions.short_links.create',
-    show_short_link: 'services.short_links.show'
+    find_short_link: 'queries.short_links.find_by_slug',
   ]
 
   def create
@@ -19,7 +19,7 @@ class API::ShortLinksController < API::ApplicationController
   def show
     authorize! User, to: :shortening_link?
 
-    url = show_short_link.(params[:id])
+    url = find_short_link.(params[:id])
 
     respond_with url, serializer: ShortLinkSerializer
   end
