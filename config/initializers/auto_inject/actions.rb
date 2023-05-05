@@ -20,6 +20,10 @@ module AutoInjectActions
         namespace :users do
           register(:create) { Users::CreateAction.new }
         end
+
+        namespace :short_links do
+          register(:create) { ShortLinks::CreateAction.new }
+        end
       end
     end
   end

@@ -24,6 +24,11 @@ module AutoInjectServices
           register(:create) { Users::Create.new }
           register(:create_email_confirmation_token) { Users::CreateEmailConfirmationToken.new }
         end
+
+        namespace :short_links do
+          register(:create) { ShortLinks::Create.new }
+          register(:show) { ShortLinks::Show.new }
+        end
       end
     end
   end

@@ -9,4 +9,7 @@ module Types
 
   # Email address with format validation
   Email = StrippedString.constrained(format: URI::MailTo::EMAIL_REGEXP)
+
+  # URL address with format validation
+  Url = StrippedString.constrained(format: URI::DEFAULT_PARSER.make_regexp(%w[http https]))
 end

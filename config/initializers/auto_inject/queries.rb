@@ -7,8 +7,8 @@ module AutoInjectQueries
   def self.extended(container)
     container.instance_exec do
       namespace :queries do
-        namespace :users do
-          register(:find_by_reset_password_token) { Users::FindByResetPasswordTokenQuery.new }
+        namespace :short_links do
+          register(:find_by_slug) { ShortLinks::FindBySlugQuery.new }
         end
       end
     end

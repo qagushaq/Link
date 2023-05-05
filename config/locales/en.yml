@@ -4,7 +4,7 @@ en:
       logged_in: You are logged in.
       not_logged_in: You are not logged in.
       user:
-        email_confirmed: Your email address is already confirmed.
+        email_not_confirmed: Your email address is not confirmed.
 
   errors:
     unauthorized: You are not authorized to do this.
@@ -14,3 +14,6 @@ en:
       email_taken: This email address is taken.
     confirm_email:
       token_missing: is missing
+    short_links:
+      url_missing: is in invalid format
+      invalid_slug: Short Link not found

@@ -17,5 +17,7 @@ Rails.application.routes.draw do
 
     resources :users, only: %i[create]
     get 'user', to: 'user#show'
+
+    resources :short_links, only: %i[create show]
   end
 end
